@@ -1,26 +1,42 @@
-const path = require('path');
-const express = require('express');
-const handlebars = require('express-handlebars').engine;
+const path = require('path')
+const express = require('express')
+const methodOverride = require('method-override')
+const handlebars = require('express-handlebars').engine
 
-const morgan = require('morgan');
-const app = express();
-const port = 3000;
+const morgan = require('morgan')
+const app = express()
+const port = 3000
 
-const route = require('./routes');
+const route = require('./routes')
+const db = require('./configs/db')
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// Connect DB
+db.connect()
 
-// app.use(morgan("combined"));
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(express.static(path.join(__dirname, 'public')))
+app.use(methodOverride('_method'))
+
+// app.use(morgan("combined"))
 // Template Engine
-        app.engine('hbs', handlebars({ extname: '.hbs' }));
-    app.set('view engine', 'hbs');
-    app.set('views', path.join(__dirname, 'resources/views'));
+app.engine(
+  'hbs',
+  handlebars({
+    extname: '.hbs',
+    helpers: {
+      sum: function (a, b) {
+        return a + b
+      },
+    },
+  })
+)
+app.set('view engine', 'hbs')
+app.set('views', path.join(__dirname, 'resources/views'))
 
 // Router Init
-route(app);
+route(app)
 
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-});
+  console.log(`App listening on port ${port}`)
+})
